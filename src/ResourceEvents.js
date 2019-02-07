@@ -248,7 +248,7 @@ class ResourceEvents extends Component {
             let eventEnd = localeMoment(evt.eventItem.end);
             let isStart = eventStart >= durationStart;
             let isEnd = eventEnd <= durationEnd;
-            var left = index * cellWidth + 1;
+            var left = index * cellWidth;
             var width =
               evt.span * cellWidth - (index > 0 ? 1 : 2) > 0
                 ? evt.span * cellWidth - (index > 0 ? 1 : 2)
