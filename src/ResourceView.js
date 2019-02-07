@@ -75,8 +75,13 @@ class ResourceView extends Component {
       }
 
       return (
-        <Popover placement="bottomLeft" content={content} trigger="hover">
-          <tr key={item.slotId}>
+        <Popover
+          key={item.slotId}
+          placement="bottomLeft"
+          content={content}
+          trigger="hover"
+        >
+          <tr>
             <td
               data-resource-id={item.slotId}
               style={{ height: item.rowHeight }}
