@@ -62,6 +62,9 @@ class CustomPopoverStyle extends Component {
             resourceItemPopoverTemplateResolver={
               this.resourceItemPopoverTemplateResolver
             }
+            agendaItemPopoverTemplateResolver={
+              this.agendaItemPopoverTemplateResolver
+            }
           />
         </div>
         <Tips />
@@ -287,6 +290,22 @@ class CustomPopoverStyle extends Component {
             >
               Demo
             </Button>
+          </Col>
+        </Row>
+      </div>
+    );
+  };
+
+  agendaItemPopoverTemplateResolver = (config, title, statusColor) => {
+    console.log("agendaItemPopoverTemplateResolver");
+    console.log(config);
+    return (
+      <div style={{ width: "300px" }}>
+        <Row type="flex" align="middle">
+          <Col span={22} className="overflow-text">
+            <span className="header2-text" title={title}>
+              {title}
+            </span>
           </Col>
         </Row>
       </div>
