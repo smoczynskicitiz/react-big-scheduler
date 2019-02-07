@@ -29,7 +29,6 @@ class ResourcePopover extends Component {
     } = this.props;
 
     if (resourceItemPopoverTemplateResolver != undefined) {
-      // TODO
       return resourceItemPopoverTemplateResolver(
         schedulerData,
         resourceItem,

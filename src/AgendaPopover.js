@@ -25,7 +25,6 @@ class AgendaPopover extends Component {
     } = this.props;
 
     if (agendaItemPopoverTemplateResolver != undefined) {
-      // TODO
       return agendaItemPopoverTemplateResolver(config, title, statusColor);
     }
 

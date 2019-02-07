@@ -276,7 +276,7 @@ class Scheduler extends Component {
                         trigger="hover"
                       >
                         <tr style={{ height: config.tableHeaderHeight }}>
-                          <th className="header3-text">{"resourceName"}</th>
+                          <th className="header3-text">{resourceName}</th>
                         </tr>
                       </Popover>
                     </thead>
