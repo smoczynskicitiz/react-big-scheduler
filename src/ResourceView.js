@@ -32,8 +32,6 @@ class ResourceView extends Component {
           {...this.props}
           resourceItem={item}
           title={"title"}
-          startTime={new Date()}
-          endTime={new Date()}
           statusColor={"#AA0000"}
         />
       );

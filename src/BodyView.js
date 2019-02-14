@@ -20,7 +20,7 @@ class BodyView extends Component {
         let tableRows = renderData.map((item) => {
             let rowCells = headers.map((header, index) => {
                 let key = item.slotId + '_' + header.time;
-                let style = index === headers.length - 1 ? {} : {width: cellWidth};
+                let style = index === headers.length ? {} : {width: cellWidth};
                 if(!!header.nonWorkingTime)
                     style = {...style, backgroundColor: config.nonWorkingTimeBodyBgColor};
                 if(!!behaviors.getNonAgendaViewBodyCellBgColorFunc){
