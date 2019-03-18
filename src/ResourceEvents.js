@@ -5,8 +5,6 @@ import Summary from "./Summary";
 import SelectedArea from "./SelectedArea";
 import { CellUnits, DATETIME_FORMAT, SummaryPos } from "./index";
 import { getPos } from "./Util";
-import { DnDTypes } from "./DnDTypes";
-const supportTouch = "ontouchstart" in window;
 
 class ResourceEvents extends Component {
   constructor(props) {
@@ -43,51 +41,28 @@ class ResourceEvents extends Component {
     const { schedulerData } = this.props;
     const { config } = schedulerData;
     if (config.creatable === true) {
-      if (supportTouch) {
-        // this.eventContainer.addEventListener('touchstart', this.initDrag, false);
-      } else {
-        this.eventContainer.addEventListener("mousedown", this.initDrag, false);
-      }
+      this.eventContainer.addEventListener("mousedown", this.initDrag, false);
     }
   }
 
   componentWillReceiveProps(np) {
-    if (supportTouch) {
-      // this.eventContainer.removeEventListener('touchstart', this.initDrag, false);
-    } else {
-      this.eventContainer.removeEventListener(
-        "mousedown",
-        this.initDrag,
-        false
-      );
-    }
-    if (np.schedulerData.config.creatable) {
-      if (supportTouch) {
-        // this.eventContainer.addEventListener('touchstart', this.initDrag, false);
-      } else {
-        this.eventContainer.addEventListener("mousedown", this.initDrag, false);
-      }
-    }
+    this.eventContainer.removeEventListener("mousedown", this.initDrag, false);
+
+    this.eventContainer.addEventListener("mousedown", this.initDrag, false);
   }
 
   initDrag = ev => {
     const { isSelecting } = this.state;
-    if (isSelecting) return;
     if ((ev.srcElement || ev.target) !== this.eventContainer) return;
 
     ev.stopPropagation();
 
     let clientX = 0;
-    if (supportTouch) {
-      if (ev.changedTouches.length == 0) return;
-      const touch = ev.changedTouches[0];
-      clientX = touch.pageX;
-    } else {
-      if (ev.buttons !== undefined && ev.buttons !== 1) return;
-      clientX = ev.clientX;
-    }
+    if (ev.buttons !== undefined && ev.buttons !== 1) return;
+    clientX = ev.clientX;
 
-    const { schedulerData } = this.props;
+    const { schedulerData, resourceEvents, newEvent } = this.props;
+    const { headers } = schedulerData;
     let cellWidth = schedulerData.getContentCellWidth();
     let pos = getPos(this.eventContainer);
     let startX = clientX - pos.x;
@@ -96,222 +71,48 @@ class ResourceEvents extends Component {
     let rightIndex = Math.ceil(startX / cellWidth);
     let width = (rightIndex - leftIndex) * cellWidth;
 
-    this.setState({
-      startX: startX,
-      left: left,
-      leftIndex: leftIndex,
-      width: width,
-      rightIndex: rightIndex,
-      isSelecting: true
-    });
-
-    if (supportTouch) {
-      document.documentElement.addEventListener(
-        "touchmove",
-        this.doDrag,
-        false
-      );
-      document.documentElement.addEventListener(
-        "touchend",
-        this.stopDrag,
-        false
-      );
-      document.documentElement.addEventListener(
-        "touchcancel",
-        this.cancelDrag,
-        false
-      );
-    } else {
-      document.documentElement.addEventListener(
-        "mousemove",
-        this.doDrag,
-        false
-      );
-      document.documentElement.addEventListener(
-        "mouseup",
-        this.stopDrag,
-        false
-      );
-    }
-    document.onselectstart = function() {
-      return false;
-    };
-    document.ondragstart = function() {
-      return false;
-    };
-  };
-
-  doDrag = ev => {
-    ev.stopPropagation();
-
-    let clientX = 0;
-    if (supportTouch) {
-      if (ev.changedTouches.length == 0) return;
-      const touch = ev.changedTouches[0];
-      clientX = touch.pageX;
-    } else {
-      clientX = ev.clientX;
-    }
-    const { startX } = this.state;
-    const { schedulerData } = this.props;
-    const { headers } = schedulerData;
-    let cellWidth = schedulerData.getContentCellWidth();
-    let pos = getPos(this.eventContainer);
-    let currentX = clientX - pos.x;
-    let leftIndex = Math.floor(Math.min(startX, currentX) / cellWidth);
-    leftIndex = leftIndex < 0 ? 0 : leftIndex;
-    let left = leftIndex * cellWidth;
-    let rightIndex = Math.ceil(Math.max(startX, currentX) / cellWidth);
-    rightIndex = rightIndex > headers.length ? headers.length : rightIndex;
-    let width = (rightIndex - leftIndex) * cellWidth;
-
-    this.setState({
-      leftIndex: leftIndex,
-      left: left,
-      rightIndex: rightIndex,
-      width: width,
-      isSelecting: true
-    });
-  };
-
-  stopDrag = ev => {
-    ev.stopPropagation();
-
-    const { schedulerData, newEvent, resourceEvents } = this.props;
-    const { headers, events, config, cellUnit, localeMoment } = schedulerData;
-    const { leftIndex, rightIndex } = this.state;
-    if (supportTouch) {
-      document.documentElement.removeEventListener(
-        "touchmove",
-        this.doDrag,
-        false
-      );
-      document.documentElement.removeEventListener(
-        "touchend",
-        this.stopDrag,
-        false
-      );
-      document.documentElement.removeEventListener(
-        "touchcancel",
-        this.cancelDrag,
-        false
-      );
-    } else {
-      document.documentElement.removeEventListener(
-        "mousemove",
-        this.doDrag,
-        false
-      );
-      document.documentElement.removeEventListener(
-        "mouseup",
-        this.stopDrag,
-        false
-      );
-    }
-    document.onselectstart = null;
-    document.ondragstart = null;
-
-    let startTime = headers[leftIndex].time;
-    let endTime = resourceEvents.headerItems[rightIndex - 1].end;
-    if (cellUnit !== CellUnits.Hour)
-      endTime = localeMoment(resourceEvents.headerItems[rightIndex - 1].start)
-        .hour(23)
-        .minute(59)
-        .second(59)
-        .format(DATETIME_FORMAT);
-    let slotId = resourceEvents.slotId;
-    let slotName = resourceEvents.slotName;
-
-    this.setState({
-      startX: 0,
-      leftIndex: 0,
-      left: 0,
-      rightIndex: 0,
-      width: 0,
-      isSelecting: false
-    });
-
-    let hasConflict = false;
-    if (config.checkConflict) {
-      let start = localeMoment(startTime),
-        end = localeMoment(endTime);
-
-      events.forEach(e => {
-        if (schedulerData._getEventSlotId(e) === slotId) {
-          let eStart = localeMoment(e.start),
-            eEnd = localeMoment(e.end);
-          if (
-            (start >= eStart && start < eEnd) ||
-            (end > eStart && end <= eEnd) ||
-            (eStart >= start && eStart < end) ||
-            (eEnd > start && eEnd <= end)
-          )
-            hasConflict = true;
-        }
-      });
-    }
-
-    if (hasConflict) {
-      const { conflictOccurred } = this.props;
-      if (conflictOccurred != undefined) {
-        conflictOccurred(
-          schedulerData,
-          "New",
-          {
-            id: undefined,
-            start: startTime,
-            end: endTime,
-            slotId: slotId,
-            slotName: slotName,
-            title: undefined
-          },
-          DnDTypes.EVENT,
-          slotId,
-          slotName,
-          startTime,
-          endTime
-        );
-      } else {
-        console.log(
-          "Conflict occurred, set conflictOccurred func in Scheduler to handle it"
-        );
-      }
-    } else {
-      if (newEvent != undefined)
-        newEvent(schedulerData, slotId, slotName, startTime, endTime);
-    }
-  };
-
-  cancelDrag = ev => {
-    ev.stopPropagation();
-
-    const { isSelecting } = this.state;
-    if (isSelecting) {
-      document.documentElement.removeEventListener(
-        "touchmove",
-        this.doDrag,
-        false
-      );
-      document.documentElement.removeEventListener(
-        "touchend",
-        this.stopDrag,
-        false
-      );
-      document.documentElement.removeEventListener(
-        "touchcancel",
-        this.cancelDrag,
-        false
-      );
-      document.onselectstart = null;
-      document.ondragstart = null;
+    if (!isSelecting) {
+      // If first click to define start event
       this.setState({
-        startX: 0,
-        leftIndex: 0,
-        left: 0,
-        rightIndex: 0,
-        width: 0,
-        isSelecting: false
+        startX: startX,
+        left: left,
+        leftIndex: leftIndex,
+        width: width,
+        rightIndex: rightIndex,
+        isSelecting: true
       });
+    } else {
+      // If second click to define end event
+      let currentX = clientX - pos.x;
+      let leftIndex = Math.floor(
+        Math.min(this.state.startX, currentX) / cellWidth
+      );
+      leftIndex = leftIndex < 0 ? 0 : leftIndex;
+      let left = leftIndex * cellWidth;
+      let rightIndex = Math.ceil(
+        Math.max(this.state.startX, currentX) / cellWidth
+      );
+      rightIndex = rightIndex > headers.length ? headers.length : rightIndex;
+      let width = (rightIndex - leftIndex) * cellWidth;
+
+      this.setState(
+        {
+          leftIndex: leftIndex,
+          left: left,
+          rightIndex: rightIndex,
+          width: width,
+          isSelecting: true
+        },
+        () => {
+          const { headers } = schedulerData;
+
+          let slotId = resourceEvents.slotId;
+          let slotName = resourceEvents.slotName;
+          let startTime = headers[leftIndex].time;
+          let endTime = resourceEvents.headerItems[rightIndex - 1].end;
+          newEvent(schedulerData, slotId, slotName, startTime, endTime);
+        }
+      );
     }
   };
 
