@@ -350,8 +350,8 @@ class ResourceEvents extends Component {
           config.summaryPos === SummaryPos.TopLeft;
         let marginTop =
           resourceEvents.hasSummary && isTop
-            ? 1 + config.eventItemLineHeight
-            : 1;
+            ? 0 + config.eventItemLineHeight
+            : 0;
         let renderEventsMaxIndex =
           headerItem.addMore === 0 ? cellMaxEvents : headerItem.addMoreIndex;
 
@@ -420,8 +420,8 @@ class ResourceEvents extends Component {
 
         if (headerItem.summary != undefined) {
           let top = isTop
-            ? 1
-            : resourceEvents.rowHeight - config.eventItemLineHeight + 1;
+            ? 0
+            : resourceEvents.rowHeight - config.eventItemLineHeight + 0;
           let left = index * cellWidth + (index > 0 ? 2 : 3);
           let width = cellWidth - (index > 0 ? 5 : 6);
           let key = `${resourceEvents.slotId}_${headerItem.time}`;
