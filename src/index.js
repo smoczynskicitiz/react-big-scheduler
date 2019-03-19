@@ -559,6 +559,7 @@ class Scheduler extends Component {
   };
 
   onSchedulerContentScroll = (proxy, event) => {
+    return;
     if (this.currentArea === 0 || this.currentArea === -1) {
       if (this.schedulerHead.scrollLeft != this.schedulerContent.scrollLeft)
         this.schedulerHead.scrollLeft = this.schedulerContent.scrollLeft;

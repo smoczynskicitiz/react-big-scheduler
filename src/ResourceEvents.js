@@ -67,7 +67,7 @@ class ResourceEvents extends Component {
     let pos = getPos(this.eventContainer);
     let startX = clientX - pos.x;
     let leftIndex = Math.floor(startX / cellWidth);
-    let left = leftIndex * cellWidth;
+    let left = leftIndex * cellWidth - 1;
     let rightIndex = Math.ceil(startX / cellWidth);
     let width = (rightIndex - leftIndex) * cellWidth;
 
@@ -101,7 +101,7 @@ class ResourceEvents extends Component {
           left: left,
           rightIndex: rightIndex,
           width: width,
-          isSelecting: true
+          isSelecting: false
         },
         () => {
           const { headers } = schedulerData;
